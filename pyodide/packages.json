@@ -1,0 +1,1 @@
+{"dependencies": {"test": [], "andes": [], "micropip": ["distlib"], "distlib": []}, "import_name_to_package_name": {"andes": "andes", "andes.cases": "andes", "andes.io": "andes", "andes.models": "andes", "andes.routines": "andes", "andes.system": "andes", "micropip": "micropip", "distlib": "distlib"}}

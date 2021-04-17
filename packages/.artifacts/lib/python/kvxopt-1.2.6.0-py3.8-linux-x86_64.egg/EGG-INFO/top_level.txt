@@ -1,0 +1,9 @@
+amd
+base
+blas
+cholmod
+klu
+kvxopt
+lapack
+misc_solvers
+umfpack

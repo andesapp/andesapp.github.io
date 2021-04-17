@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: micropip
+Version: 0.1
+Summary: A small version of pip for running in pyodide
+Home-page: https://github.com/iodide-project/pyodide
+Author: Michael Droettboom
+Author-email: mdroettboom@mozilla.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

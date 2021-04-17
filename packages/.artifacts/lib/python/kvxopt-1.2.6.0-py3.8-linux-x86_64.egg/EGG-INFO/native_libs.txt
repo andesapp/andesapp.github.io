@@ -1,0 +1,8 @@
+kvxopt/amd.cpython-38-x86_64-linux-gnu.so
+kvxopt/base.cpython-38-x86_64-linux-gnu.so
+kvxopt/blas.cpython-38-x86_64-linux-gnu.so
+kvxopt/cholmod.cpython-38-x86_64-linux-gnu.so
+kvxopt/klu.cpython-38-x86_64-linux-gnu.so
+kvxopt/lapack.cpython-38-x86_64-linux-gnu.so
+kvxopt/misc_solvers.cpython-38-x86_64-linux-gnu.so
+kvxopt/umfpack.cpython-38-x86_64-linux-gnu.so
