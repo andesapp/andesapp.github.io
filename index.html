@@ -13,26 +13,126 @@
   <script src="/pyodide/andes.asm.data.js"></script>
 </head>
 <body>
-Andes test page <br>
-Open your browser console to see output
-<script type="text/javascript">
-  languagePluginLoader.then(function () {
-    console.log(pyodide.runPython(`
-                  import sys
-                  sys.version
-              `));
-    // console.log(pyodide.runPython(`
-    //               from os import listdir
-    //               print(listdir('/home/web_user/.andes/pycode'))
-    //           `));
+<h3>Andes</h3>
 
-//     pyodide.loadPackage('scipy').then(() => {
-//       console.log(pyodide.runPython(`
-// import scipy.stats as sps
-// sps.linregress([0, 1, 2, 3], [3, 3, 2, 5])
-//               `));
+<label for="casename">Case:</label>
+<select id="casename" disabled="disabled">
+  <option value="pjm5bus">PJM 5</option>
+  <option value="ieee14_fault">IEEE 14 (Fault)</option>
+  <option value="kundur_full">Kundur (Full)</option>
+</select>
+
+<button id="pf" type="button" disabled>PF</button>
+<button id="tds" type="button" disabled>TDS</button>
+
+<pre id="output"></pre>
+
+<script type="text/javascript">
+  var caseSelect = document.getElementById("casename");
+  var pfButton = document.getElementById("pf");
+  var tdsButton = document.getElementById("tds");
+  var outputPre = document.getElementById("output");
+
+  function onPrepared() {
+    caseSelect.removeAttribute("disabled");
+    pfButton.removeAttribute("disabled");
+    tdsButton.removeAttribute("disabled");
+  }
+
+
+  languagePluginLoader.then(function () {
+    outputPre.innerText = "Loading packages...";
 
     pyodide.loadPackage(['numpy', 'sympy', 'mpmath', 'kvxopt', 'dill', 'tqdm', 'andes']).then(() => {
+      new Promise((resolve, reject) => {
+        outputPre.innerText = 'Preparing models...';
+        resolve();
+      }).then(() => {
+        pyodide.runPythonAsync(`
+import io
+import logging
+from andes.main import config_logger
+from andes.system import System
+
+config_logger(file=False, stream_level=10)
+
+lg = logging.getLogger('andes')
+stream = io.StringIO()
+sh = logging.StreamHandler(stream)
+lg.addHandler(sh)
+
+system = System()
+system.prepare(quick=True, incremental=True)
+
+stream.getvalue()
+              `)
+          .then(output => {
+            outputPre.innerText = output;
+            onPrepared();
+          })
+          .catch((err) => {
+            outputPre.innerText = err
+          });
+      });
+
+      pfButton.onclick = () => {
+        new Promise((resolve, reject) => {
+          outputPre.innerText = 'Running power flow...';
+          resolve();
+        }).then(() => {
+          pyodide.runPythonAsync(`
+#from andes.system import System
+from andes.io import parse
+
+stream.truncate(0)
+
+#system = System('/cases/` + caseSelect.value + `.json')
+#parse(system)
+#system.setup()
+
+#if system.is_setup:
+#  system.reset()
+system.reload('/cases/` + caseSelect.value + `.json')
+system.PFlow.run()
+
+stream.getvalue()
+          `)
+            .then(output => {
+              outputPre.innerText = output
+            })
+            .catch((err) => {
+              outputPre.innerText = err
+            });
+        });
+      };
+
+      tdsButton.onclick = () => {
+        outputPre.innerText = 'Running time domain simulation...';
+
+        pyodide.runPythonAsync(`
+#from andes.system import System
+from andes.io import parse
+
+stream.truncate(0)
+
+#system = System('/cases/` + caseSelect.value + `.json')
+#parse(system)
+#system.setup()
+
+#if system.is_setup:
+#  system.reset()
+system.reload('/cases/` + caseSelect.value + `.json')
+system.PFlow.run()
+system.TDS.run()
+
+stream.getvalue()
+        `)
+          .then(output => { outputPre.innerText = output })
+          .catch((err) => { outputPre.innerText = err });
+      };
+    });
+
+    /*pyodide.loadPackage(['numpy', 'sympy', 'mpmath', 'kvxopt', 'dill', 'tqdm', 'andes']).then(() => {
       console.log(pyodide.runPython(`
 #from kvxopt import matrix, spmatrix, sparse, spdiag
 #from kvxopt.amd import order
@@ -89,7 +189,7 @@ system.setup()
 system.PFlow.run()
 system.TDS.run()
               `));
-    });
+    });*/
   });
 </script>
 </body>
